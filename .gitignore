@@ -1,0 +1,24 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Pycharm specific:
+.idea/*
+
+# Notebooks (TBD if needed)
+*.ipynb
+
+# Parsed data files
+*.npy
+
+# backup data, config and model files
+/chapter1/*
+/checkpoints/*
+*.backup
+*.pt
+
+# ckpt files
+checkpoints/
+
+# plots
+*.png
