@@ -22,23 +22,16 @@
 <details>
   <summary>Table of Contents</summary>
   <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li><a href="#usage">Usage</a></li>
+    <li><a href="#about-the-project">About The Project</a></li>
+    <li><a href="#setup">Setup</a></li>
+    <li><a href="#data">Data</a></li>
+    <li><a href="#training">Training</a></li>
+    <li><a href="#testing">Testing</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
   </ol>
 </details>
-
 
 
 <!-- ABOUT THE PROJECT -->
@@ -48,38 +41,26 @@ TODO: Short description
 
 TODO: Short showcase
 
-## Getting Started
+## Setup 
 
-### Prerequisites
 TODO: What python, python env
 
-### Installation
-TODO
-
-## Usage
-TODO
-
+## Data
+a
+## Training
+a
+## Testing
+a
 
 ## Roadmap
-- [ ] Refactor & Clean-Up Code
-  - [X] Utils
-    - [X] helper functions
-    - [X] datasets
-    - [X] configurations
-  - [] Models
-    - [ ] LSTM
-      - [ ] module
-      - [ ] train
-      - [ ] test
-    - [ ] Transformer
-      - [ ] module
-      - [ ] train
-      - [ ] test
-- [ ] Update .gitignore
-- [ ] Move Repository from Private to Public
+- [X] Refactor & Clean-Up Code
+- [X] Update .gitignore
+- [X] Move Repository from Private to Public
+- [ ] Confirm all functionalities again
+- [ ] Push good configurations
+- [ ] Create shell scripts for example usage
 - [ ] Setup & Dependencies
 - [ ] Write README
-  - [ ] TBD
 - [ ] Confirm cloning & following README works
 - [ ] Leftover code beautification & Bugfixes
   - [ ] Move to logging from printing
