@@ -77,20 +77,19 @@ TODO: Short showcase
   python src/modules/transformer/test.py 
   ```
   The parameters for the evaluation can be changed in the model `config.json`.
-<!
+
 ## Roadmap
-- [ ] Push working configurations
-- [ ] Create shell scripts for example usage
+- [X] Push working configurations
 - [ ] Setup & Dependencies
 - [ ] Write README
+- [ ] Publish some showcases
 - [ ] Confirm cloning & following README works
 - [ ] Leftover code beautification & Bugfixes
   - [ ] Get rid of code doubling my merging train & test
   - [ ] Move to logging from printing
-  - [ ] Enable GPU as a device, currently buggy sometimes
   - [ ] Setting Flags instead of hardcoded Parameters like NUM_PREDICTED_SENTENCES and LOADING_MODEL_EPOCH
   - [ ] Use Typing
--->
+
 
 ## Results
 TODO Write summary of results and link to some report that i maybe also upload?!
