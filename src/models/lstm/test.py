@@ -23,7 +23,7 @@ import src.utils.helper_functions as helpers
 # Number of Predicted sentences
 NUM_PREDICTED_SENTENCES = 5
 # Epoch of the model to load
-LOADING_MODEL_EPOCH = 143
+LOADING_MODEL_EPOCH = 25
 
 
 def run_testing():

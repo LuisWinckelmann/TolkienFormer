@@ -17,7 +17,7 @@ from src.utils.configuration import Configuration
 # Number of Predicted sentences
 NUM_PREDICTED_SENTENCES = 5
 # Epoch of the model to load
-LOADING_MODEL_EPOCH = 1
+LOADING_MODEL_EPOCH = 25
 
 
 def run_testing():
