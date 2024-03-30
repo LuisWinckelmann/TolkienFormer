@@ -11,7 +11,7 @@
   <p align="center">
     TODO: Description
     <br />
-    <a href="https://github.com/othneildrew/Best-README-Template"><strong>Example Results »</strong></a>
+    <a href="#results"><strong>Example Results »</strong></a>
     <br />
     <br />
   </p>
@@ -28,6 +28,7 @@
     <li><a href="#training">Training</a></li>
     <li><a href="#testing">Testing</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#results">Results</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
   </ol>
@@ -57,29 +58,34 @@ TODO: Short showcase
 ## Data
   For the data you can use any *.txt file that you want. In the current setup the file will get parse row-wise.
   The example dataset chapter1, provided in `src/data/chapter1` includes chapter 1 or Tolkien's The Lord of the rings obtained from [here](https://ae-lib.org.ua/texts-c/tolkien__the_lord_of_the_rings_3__en.htm).
-  To use your own dataset simply copy the text file(s) into `src/data` and run `./prepare_data.sh`. If your data has another format you'll need to adjust your custom dataset in `src/utils/datasets.py` accordingly.
+  To use your own dataset simply copy the text file(s) into `src/data` and run:
+  ```
+  python src/data/data_preparation.py 
+  ```
+  If your data is stored somewhere else then `src/data` you can use `--path_to_folder_with_txt_filess` to adjust the root folder with the .txt files inside.
+  If your data has another format you'll need to adjust your custom dataset in `src/utils/datasets.py` accordingly.
 
 ## Training
-  To run training of the LSTM on the provided dataset, run:
+  To run training of the LSTM run:
   ```
   python src/modules/lstm/train.py 
   ```
-  To run training of the transformer-like model on the provided dataset, run:
+  To run training of the transformer-like model run:
   ```
   python src/modules/transformer/train.py 
   ```
 ## Testing
   After executing the training, to generate results of the models as shown in the <a href="#about-the-project">description</a>, you can run:
   ```
+  # LSTM model
   python src/modules/lstm/test.py 
-  ```
-  ```
+  # Transformer-like model
   python src/modules/transformer/test.py 
   ```
   The parameters for the evaluation can be changed in the model `config.json`.
 
+<!--
 ## Roadmap
-- [X] Push working configurations
 - [ ] Setup & Dependencies
 - [ ] Write README
 - [ ] Publish some showcases
@@ -87,9 +93,9 @@ TODO: Short showcase
 - [ ] Leftover code beautification & Bugfixes
   - [ ] Get rid of code doubling my merging train & test
   - [ ] Move to logging from printing
-  - [ ] Setting Flags instead of hardcoded Parameters like NUM_PREDICTED_SENTENCES and LOADING_MODEL_EPOCH
+  - [ ] Setting Flags instead of hardcoded Parameters like NUM_PREDICTED_SENTENCES and LOADING_MODEL_EPOCH and DATA_PATH
   - [ ] Use Typing
-
+-->
 
 ## Results
 TODO Write summary of results and link to some report that i maybe also upload?!
