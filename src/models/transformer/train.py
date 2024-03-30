@@ -101,7 +101,8 @@ def run_training():
         epoch_errors_train.append(np.mean(sequence_errors))
 
         # Save the model to file (if desired)
-        if cfg.training.save_model and np.mean(sequence_errors) < best_train:
+        if cfg.training.save_model and epoch % cfg.training.save_every_nth_epoch == 0:  # and np.mean(sequence_errors) < best_train:
+            print(f'\nSaving model @ epoch {epoch + 1}')
             # Start a separate thread to save the model
             thread = Thread(target=helpers.save_model_to_file(
                 model_src_path=os.path.abspath(""),
