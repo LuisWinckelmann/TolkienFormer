@@ -7,7 +7,7 @@
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
  -->
-  <h3 align="center">WIP - WORK in Progress</h3>
+  <h3 align="center">TolkienFormer - WORK IN PROGRESS</h3>
   <p align="center">
     TODO: Description
     <br />
@@ -43,52 +43,62 @@ TODO: Short description
 TODO: Short showcase
 
 ## Setup 
-  First, you have to clone the repo and create a conda environment.
-   ```sh
+  First, you have to clone the repo and create a conda environment, as well adding the project root to your PYTHONPATH to enable local imports:
+   ```shell
    # 1. Clone this repository
    git clone https://github.com/LuisWinckelmann/TolkienFormer.git
    cd TolkienFormer
-   # 2. Setup python env
-   chmod +x setup_env.sh
-   ./setup_env.sh
-   
-   conda activate TolkienFormer
+   # 2. Setup conda env
+   conda create --name tolkienformer
+   conda activate tolkienformer
+   conda conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+   # 3. Enable local imports by adding the root to your pythonpath:
+   # 3a) Linux:
+   export PYTHONPATH=.:$PYTHONPATH
+   # 3b) Windows:
+   set PYTHONPATH=%PYTHONPATH%;%cd%
    ```
 
 ## Data
   For the data you can use any *.txt file that you want. In the current setup the file will get parse row-wise.
   The example dataset chapter1, provided in `src/data/chapter1` includes chapter 1 or Tolkien's The Lord of the rings obtained from [here](https://ae-lib.org.ua/texts-c/tolkien__the_lord_of_the_rings_3__en.htm).
   To use your own dataset simply copy the text file(s) into `src/data` and run:
-  ```
-  python src/data/data_preparation.py 
+  ```shell
+  cd src/data
+  python data_preparation.py 
   ```
   If your data is stored somewhere else then `src/data` you can use `--path_to_folder_with_txt_filess` to adjust the root folder with the .txt files inside.
   If your data has another format you'll need to adjust your custom dataset in `src/utils/datasets.py` accordingly.
 
 ## Training
   To run training of the LSTM run:
-  ```
-  python src/modules/lstm/train.py 
+  ```shell
+  cd src/modules/lstm
+  python train.py 
   ```
   To run training of the transformer-like model run:
+  ```shell
+  cd src/modules/transformer
+  python train.py 
   ```
-  python src/modules/transformer/train.py 
-  ```
+  All currently available hyperparameters can be changed in the corresponding config.json files located in `src/modes/lstm` or `src/modes/transformers` respectively. 
+
 ## Testing
   After executing the training, to generate results of the models as shown in the <a href="#about-the-project">description</a>, you can run:
-  ```
+  ```shell
   # LSTM model
-  python src/modules/lstm/test.py 
+  cd src/modules/lstm
+  python test.py 
   # Transformer-like model
-  python src/modules/transformer/test.py 
+  cd src/modules/transformer
+  python test.py 
   ```
   The parameters for the evaluation can be changed in the model `config.json`.
-
+ 
 <!--
 ## Roadmap
-- [ ] Setup & Dependencies
-- [ ] Write README
-- [ ] Publish some showcases
+- [ ] Write description with a showcase
+- [ ] Publish some additional results
 - [ ] Confirm cloning & following README works
 - [ ] Leftover code beautification & Bugfixes
   - [ ] Get rid of code doubling my merging train & test
