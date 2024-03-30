@@ -1,0 +1,24 @@
+{
+ "general": {
+  "device": "gpu"
+ },
+ "training": {
+  "save_model": true,
+  "save_every_nth_epoch": 25,
+  "epochs": 200,
+  "learning_rate": 0.001
+ },
+ "testing": {
+  "teacher_forcing_steps": 30,
+  "closed_loop_steps": 100
+ },
+ "dataset": {
+  "name": "chapter1"
+ },
+ "model": {
+  "name": "example_lstm_model",
+  "d_one_hot": 45,
+  "d_lstm": 128,
+  "num_lstm_layers": 2
+ }
+}
