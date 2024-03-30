@@ -11,6 +11,8 @@ import numpy as np
 
 from src.utils.helper_functions import char_to_one_hot
 
+DATA_PATH = "."
+
 
 def txt_to_npy(path, dataset_name):
     """
@@ -49,16 +51,16 @@ def txt_to_npy(path, dataset_name):
             np.save(os.path.join(dataset_name, "sample_{num:04d}.npy".format(num=data_idx)), sample)
 
 
-def prepare_data():
+def prepare_data(data_path):
     # convert every dataset (*.txt file) in /data into one hot encoded samples
-    datasets = [file for file in os.listdir(".") if file.endswith(".txt")]
+    datasets = [file for file in os.listdir(data_path) if file.endswith(".txt")]
     print("Starting dataset preparation")
     for dataset in datasets:
         dataset_name = Path(dataset).stem
-        print(f"Current dataset: {dataset_name}")
+        print(f"Parsing dataset: {dataset_name}")
         txt_to_npy(dataset, dataset_name)
     print("Done.")
 
 
 if __name__ == "__main__":
-    prepare_data()
+    prepare_data(DATA_PATH)
