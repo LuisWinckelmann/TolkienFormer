@@ -42,7 +42,7 @@ def build_dataloader(cfg, batch_size):
         shuffle=True,
         num_workers=0,
         pin_memory=True,
-        prefetch_factor=2
+        # prefetch_factor=2 # Was disabled in newer pytorch variants, see https://github.com/pytorch/pytorch/issues/68576
     )
     return dataset, dataloader
 
