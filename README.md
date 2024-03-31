@@ -1,21 +1,15 @@
+<!-- README.md -->
+<!-- Project Top -->
 <a name="readme-top"></a>
 
-<br />
-<div align="center">
-<!-- PROJECT LOGO 
-  <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a>
- -->
-  <h3 align="center">TolkienFormer - WORK IN PROGRESS</h3>
+<h1 align="center">TolkienFormer - Textgeneration with Tolkiens Touch</h1>
+
   <p align="center">
-    TODO: Description
-    <br />
-    <a href="#results"><strong>Example Results »</strong></a>
-    <br />
-    <br />
-  </p>
-</div>
+    A project exploring LSTM and Transformer-like models with with implementations in Python & Pytorch.
+  <br />
+  <a href="#results"><strong>Example Results »</strong></a>
+
+</p>
 
 
 <!-- TABLE OF CONTENTS -->
@@ -37,9 +31,9 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
+TolkienFormer is a project dedicated to get more familiar with Generative Neural Networks and Pytorch. The codebase contains 
 
-TODO: Short description
-
+TODO: Write description <br>
 TODO: Short showcase
 
 ## Setup 
