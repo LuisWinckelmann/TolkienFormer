@@ -3,12 +3,10 @@
 <a name="readme-top"></a>
 
 <h1 align="center">TolkienFormer - Textgeneration with Tolkiens Touch</h1>
-
   <p align="center">
     A project exploring LSTM and Transformer-like models with with implementations in Python & Pytorch.
   <br />
   <a href="#results"><strong>Example Results »</strong></a>
-
 </p>
 
 
@@ -45,7 +43,7 @@ TODO: Short showcase
    # 2. Setup conda env
    conda create --name tolkienformer
    conda activate tolkienformer
-   conda conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+   conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
    # 3. Enable local imports by adding the root to your pythonpath:
    # 3a) Linux:
    export PYTHONPATH=.:$PYTHONPATH
@@ -67,12 +65,12 @@ TODO: Short showcase
 ## Training
   To run training of the LSTM run:
   ```shell
-  cd src/modules/lstm
+  cd src/models/lstm
   python train.py 
   ```
   To run training of the transformer-like model run:
   ```shell
-  cd src/modules/transformer
+  cd src/models/transformer
   python train.py 
   ```
   All currently available hyperparameters can be changed in the corresponding config.json files located in `src/modes/lstm` or `src/modes/transformers` respectively. 
@@ -81,29 +79,26 @@ TODO: Short showcase
   After executing the training, to generate results of the models as shown in the <a href="#about-the-project">description</a>, you can run:
   ```shell
   # LSTM model
-  cd src/modules/lstm
+  cd src/models/lstm
   python test.py 
   # Transformer-like model
-  cd src/modules/transformer
+  cd src/models/transformer
   python test.py 
   ```
   The parameters for the evaluation can be changed in the model `config.json`.
- 
-<!--
+
 ## Roadmap
 - [ ] Write description with a showcase
 - [ ] Publish some additional results
-- [ ] Confirm cloning & following README works
+- [X] Confirm setup written in README works on a new machine
 - [ ] Leftover code beautification & Bugfixes
   - [ ] Get rid of code doubling my merging train & test
   - [ ] Move to logging from printing
   - [ ] Setting Flags instead of hardcoded Parameters like NUM_PREDICTED_SENTENCES and LOADING_MODEL_EPOCH and DATA_PATH
   - [ ] Use Typing
--->
 
 ## Results
 TODO Write summary of results and link to some report that i maybe also upload?!
-
 
 ## License
 Distributed under the MIT License. See `LICENSE.txt` for more information.
