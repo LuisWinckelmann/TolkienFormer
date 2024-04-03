@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-TODO: Description
+Enables, saving and loading of custom configuration files that are easily extendable
 """
+
 import json
 import os
 
@@ -19,11 +20,12 @@ class Dict(dict):
     def __getattr__(self, item):
         return self[item] if item in self else getattr(super(Dict, self), item)
 
-    def load(self, dictionary: dict, name_list: list = None):
+    def load(self, dictionary: dict, name_list: list = None) -> None:
         """
         Loads a dictionary
-        :param dictionary: Dictionary to be loaded
-        :param name_list: List of names to be updated
+        Args:
+            dictionary (dict): Dictionary to be loaded
+            name_list (list): List of names to be updated
         """
         for name in dictionary:
             data = dictionary[name]
@@ -36,10 +38,11 @@ class Dict(dict):
                 else:
                     self[name] = data
 
-    def save(self, path):
+    def save(self, path: str) -> None:
         """
         Saves the dictionary into a json file
-        :param path: Path of the json file
+        Args:
+            path (str): Path of the json file
         """
         if not os.path.exists(path):
             os.makedirs(path)
@@ -53,19 +56,19 @@ class Configuration(Dict):
     """
     Configuration loaded from a json file
     """
-    def __init__(self, path: str):
+    def __init__(self, path: str) -> None:
         super(Configuration, self).__init__()
         self.load(path)
 
-    def load_model(self, path: str):
+    def load_model(self, path: str) -> None:
         self.load(path, name_list=["model"])
 
-    def load(self, path: str, name_list: list = None):
+    def load(self, path: str, name_list: list = None) -> None:
         """
         Loads attributes from a json file
-        :param path: Path of the json file
-        :param name_list: List of names to be updated
-        :return:
+        Args:
+            path (str): Path of the json file
+            name_list (list): List of names to be updated
         """
         with open(path) as file:
             data = json.load(file)
