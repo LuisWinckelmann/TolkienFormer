@@ -5,22 +5,22 @@ This script converts all *.txt files in the data directory into chunks of one ho
 be used to train & test the models. Additionally an alphabet will be saved that contains all unique characters present
 in the dataset
 """
+import argparse
 import os
 from pathlib import Path
 import numpy as np
 
 from src.utils.helper_functions import char_to_one_hot
 
-DATA_PATH = "."
 
-
-def txt_to_npy(path, dataset_name):
+def txt_to_npy(path: str) -> None:
     """
     Creates an alphabet and sequences of all lines from a given .txt file and
     writes the one-hot vector sequences to separate files.
-    :param path: The path to the .txt file containing the raw text
-    :param dataset_name: The name of the dataset we are parsing
+    Args:
+        path (str): The path to the .txt file containing the raw text
     """
+    dataset_name = Path(path).stem
     # Create folder if it doesn't exist already
     os.makedirs(dataset_name, exist_ok=True)
 
@@ -51,16 +51,17 @@ def txt_to_npy(path, dataset_name):
             np.save(os.path.join(dataset_name, "sample_{num:04d}.npy".format(num=data_idx)), sample)
 
 
-def prepare_data(data_path):
+def prepare_data(data_path: str) -> None:
     # convert every dataset (*.txt file) in /data into one hot encoded samples
     datasets = [file for file in os.listdir(data_path) if file.endswith(".txt")]
     print("Starting dataset preparation")
     for dataset in datasets:
-        dataset_name = Path(dataset).stem
-        print(f"Parsing dataset: {dataset_name}")
-        txt_to_npy(dataset, dataset_name)
+        txt_to_npy(dataset)
     print("Done.")
 
 
 if __name__ == "__main__":
-    prepare_data(DATA_PATH)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--path", default=".")
+    args = parser.parse_args()
+    prepare_data(args.path)
