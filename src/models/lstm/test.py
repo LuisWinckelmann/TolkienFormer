@@ -7,31 +7,33 @@ config.teacher_forcing_steps fed to the LSTM. Afterwards, the model predicts the
 cfg.testing.closed_loop_steps-times before the prediction as well as the ground truth get printed to the console.
 This is done NUM_PREDICTED_SENTENCES times before exiting. # TODO: finalize once everything else is done.
 """
-
+import argparse
 import os
-
-import torch as th
-import torch.autograd as atgr
-import torch.nn as nn
+import torch
+from torch import autograd, nn
 import numpy as np
 
 from modules import Model
 from src.utils.configuration import Configuration
 import src.utils.helper_functions as helpers
 
-# TODO: Turn this into flags
-# Number of Predicted sentences
-NUM_PREDICTED_SENTENCES = 5
-# Epoch of the model to load
-LOADING_MODEL_EPOCH = 25
 
+def run_testing(arguments: argparse.Namespace) -> None:
+    """
+    Does multiple forward passes on the selected model with the specified teacher forcing from the configuration. The
+    real and the predicted sentences then get printed to the console.
+    Arguments:
+        arguments (TBD): Specified information about the amount of tests, the chosen model and the corresponding config.
+    """
+    # Unpack args:
+    num_predicted_sentences = arguments.num_sentences
+    model_epoch = arguments.model_epoch
 
-def run_testing():
     # Load the user configurations
-    cfg = Configuration("config.json")
+    cfg = Configuration(os.path.join(arguments.cfg_path, arguments.cfg_name))
 
     # Print some information to console
-    print("Model name:", cfg.model.name + "_epoch_" + str(LOADING_MODEL_EPOCH))
+    print("Model name:", cfg.model.name + "_epoch_" + str(model_epoch))
 
     # Hide the GPU(s) in case the user specified to use the CPU in the config file
     if cfg.general.device == "CPU":
@@ -50,11 +52,11 @@ def run_testing():
     print(f"Trainable model parameters: {pytorch_total_params}\n")
 
     # Load the trained weights from the checkpoints into the model
-    model.load_state_dict(th.load(os.path.join(os.path.abspath(""),
-                                               "checkpoints",
-                                               cfg.model.name,
-                                               cfg.model.name + "_epoch_" + str(LOADING_MODEL_EPOCH) + ".pt"),
-                                  map_location=device))
+    model.load_state_dict(torch.load(os.path.join(os.path.abspath(""),
+                                                  "checkpoints",
+                                                  cfg.model.name,
+                                                  cfg.model.name + "_epoch_" + str(model_epoch) + ".pt"),
+                                     map_location=device))
     model.eval()
 
     # Set up the dataloader for the testing
@@ -75,30 +77,31 @@ def run_testing():
 
         # Start with the first teacher forcing characters and let the model continue
         x = net_input[:tf_steps]
-        h = atgr.Variable(th.zeros(model.num_layers, 1, model.hidden_size, device=device))  # hidden state
-        c = atgr.Variable(th.zeros(model.num_layers, 1, model.hidden_size, device=device))  # internal state
+        h = autograd.Variable(torch.zeros(model.num_layers, 1, model.hidden_size, device=device))  # hidden state
+        c = autograd.Variable(torch.zeros(model.num_layers, 1, model.hidden_size, device=device))  # internal state
+        y_hat_last = None
         for i in x:
-            i = th.unsqueeze(i, 0)
+            i = torch.unsqueeze(i, 0)
             y_hat, (h, c) = model(x=i, state=(h, c))
             y_hat = nn.functional.softmax(y_hat, dim=-1)
 
-            y_hat = th.unsqueeze(y_hat, 0)
-            y_hat_last = th.tensor(np.array([[helpers.softmax_to_one_hot(soft=y_hat[-1, 0])]])).to(device=device)
+            y_hat = torch.unsqueeze(y_hat, 0)
+            y_hat_last = torch.tensor(np.array([[helpers.softmax_to_one_hot(soft=y_hat[-1, 0])]])).to(device=device)
 
         # Append the model output to the input and continue
-        x = th.cat((x, y_hat_last), dim=0)
+        x = torch.cat((x, y_hat_last), dim=0)
 
         for t in range(cl_steps):
             # Generate a prediction and apply the softmax
             y_hat, (h, c) = model(x=y_hat_last.float(), state=(h, c))
             y_hat = nn.functional.softmax(y_hat, dim=-1)
-            y_hat = th.unsqueeze(y_hat, 0)
+            y_hat = torch.unsqueeze(y_hat, 0)
 
             # Convert the last softmax output to a one-hot vector
-            y_hat_last = th.tensor(np.array([[helpers.softmax_to_one_hot(soft=y_hat[-1, 0])]])).to(device=device)
+            y_hat_last = torch.tensor(np.array([[helpers.softmax_to_one_hot(soft=y_hat[-1, 0])]])).to(device=device)
 
             # Append the model output to the input and continue
-            x = th.cat((x, y_hat_last), dim=0)
+            x = torch.cat((x, y_hat_last), dim=0)
 
         net_input = net_input.detach().cpu().numpy()
         tolkien_text = []
@@ -112,22 +115,28 @@ def run_testing():
             x_t = helpers.one_hot_to_char(
                 one_hot_vector=helpers.softmax_to_one_hot(soft=x[t, 0]),
                 alphabet=dataset.alphabet
-                )
+            )
             model_text.append(x_t[0])
 
         tolkien_text = "".join(tolkien_text)
         model_text = "".join(model_text)
 
         print(f"Initialization: {tolkien_text[:tf_steps]}...")
-        print(f"\nTolkien:\n --- {tolkien_text}")
-        print(f"\nLSTM model:\n --- {model_text}")
+        print(f"\nTolkien: \n --- {tolkien_text}")
+        print(f"\nLSTM model: \n --- {model_text}")
 
-        if batch_idx > NUM_PREDICTED_SENTENCES:
+        if batch_idx > num_predicted_sentences:
             exit()
         print("\n\n")
 
 
 if __name__ == "__main__":
-    th.set_num_threads(1)
-    run_testing()
+    torch.set_num_threads(1)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--num_sentences", default=5, type=int)
+    parser.add_argument("--model_epoch", default=25, type=int)
+    parser.add_argument("--cfg_path", default=".")
+    parser.add_argument("--cfg_name", default="config.json")
+    args = parser.parse_args()
+    run_testing(arguments=args)
     print("Done.")

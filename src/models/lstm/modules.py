@@ -1,26 +1,32 @@
 # -*- coding: utf-8 -*-
 """
-Implementation of an LSTM to predict the most probably next character based on the previous given/produced input
+Implementation of an LSTM to predict the most probably next character based on the previous given/produced text
 """
 
-import torch as th
-import torch.nn as nn
-import torch.autograd as atgr
+import torch
+from torch import nn, autograd
 
 
 class Model(nn.Module):
     """
     The actual model consisting of some feed forward and recurrent layers.
+    Attributes:
+        num_layers (int): number of LSTM layers
+        hidden_size (int): hidden size of the LSTM
+        lstm nn.LSTM: torch LSTM object
+        linear nn.Linear: torch Linear Layer for the model's output
     """
 
-    def __init__(self, d_one_hot, d_lstm, num_lstm_layers, dropout=0.1, bias=True):
+    def __init__(self, d_one_hot: int, d_lstm: int, num_lstm_layers: int, dropout: float = 0.1,
+                 bias: bool = True) -> None:
         """
         Constructor method of the Model module.
-        :param d_one_hot: The size of the input and output vector
-        :param d_lstm: The hidden size of the lstm layers
-        :param num_lstm_layers: The number of sequential lstm layers
-        :param dropout: Probability of dropping out certain neurons
-        :param bias: Whether to use bias neurons
+        Arguments:
+            d_one_hot (int): The size of the input and output vector
+            d_lstm (int): The hidden size of the lstm layers
+            num_lstm_layers (int): The number of sequential lstm layers
+            dropout (float): Probability of dropping out certain neurons
+            bias (bool): Whether to use bias neurons
         """
         self.num_layers = num_lstm_layers
         self.hidden_size = d_lstm
@@ -29,17 +35,22 @@ class Model(nn.Module):
                             dropout=dropout, batch_first=True)
         self.linear = nn.Linear(d_lstm, d_one_hot)
 
-    def forward(self, x, state=None):
+    def forward(self, x: torch.tensor, state=None) -> tuple[torch.tensor, tuple[autograd.Variable, autograd.Variable]]:
         """
         The forward pass function of the module.
-        :param x: The input to the module
-        :param state: The previous model state, None if no previous state is passed to the model
-        :return: The module's output
+        Arguments:
+            x: The input to the module
+            state: The previous model state, None if no previous state is passed to the model
+        Returns:
+             torch.tensor: The module's output
+             autograd.Variable, autograd.Variable: the model's current state
         """
         if state is None:
             device = x.device
-            h_0 = atgr.Variable(th.zeros(self.num_layers, x.size(0), self.hidden_size, device=device))  # hidden state
-            c_0 = atgr.Variable(th.zeros(self.num_layers, x.size(0), self.hidden_size, device=device))  # internal state
+            h_0 = autograd.Variable(
+                torch.zeros(self.num_layers, x.size(0), self.hidden_size, device=device))  # hidden state
+            c_0 = autograd.Variable(
+                torch.zeros(self.num_layers, x.size(0), self.hidden_size, device=device))  # internal state
         else:
             (h_0, c_0) = state
 

@@ -4,17 +4,12 @@
 This script trains an LSTM based on the configuration provided by config.json
 """
 
+
 import os
-
-# os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
-# os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
-
-import numpy as np
-import torch as th
-# print(th.__version__)
-import torch.nn as nn
-
 import time
+import numpy as np
+import torch
+from torch import nn
 from threading import Thread
 
 from modules import Model
@@ -22,7 +17,10 @@ from src.utils.configuration import Configuration
 import src.utils.helper_functions as helpers
 
 
-def run_training():
+def run_training() -> None:
+    """
+    Performs the training of the LSTM with the settings specified in the configuration.json file
+    """
     # Load the user configurations
     cfg = Configuration("config.json")
 
@@ -35,7 +33,7 @@ def run_training():
         os.environ["CUDA_VISIBLE_DEVICES"] = ""
         print("USING CPU")
     # Set device on GPU if specified in the configuration file, else CPU
-    device = helpers.determine_device()  #
+    device = helpers.determine_device()
 
     # Initialize and set up the model
     model = Model(
@@ -51,7 +49,7 @@ def run_training():
     print("Trainable model parameters:", pytorch_total_params)
 
     # Set up an optimizer and the criterion (loss)
-    optimizer = th.optim.Adam(model.parameters(), lr=cfg.training.learning_rate)
+    optimizer = torch.optim.Adam(model.parameters(), lr=cfg.training.learning_rate)
     criterion = nn.CrossEntropyLoss()
 
     # Set up a list to save and store the epoch errors
@@ -82,8 +80,8 @@ def run_training():
             # Generate a model prediction and compute the cross-entropy loss
             y_hat, (h, c) = model(net_input)
 
-            target = net_label.squeeze()  # type(th.cuda.LongTensor)
-            target = th.argmax(target, dim=1)
+            target = net_label.squeeze()  # type(torch.cuda.LongTensor)
+            target = torch.argmax(target, dim=1)
             loss = criterion(y_hat, target)
 
             # Compute gradients
@@ -96,7 +94,8 @@ def run_training():
         epoch_errors.append(np.mean(sequence_errors))
 
         # Save the model to file (if desired)
-        if cfg.training.save_model and epoch % cfg.training.save_every_nth_epoch == 0:  # and np.mean(sequence_errors) < best_train:
+        if cfg.training.save_model and epoch % cfg.training.save_every_nth_epoch == 0:  # and np.mean(
+            # sequence_errors) < best_train:
             print('\nSaving model')
             # Start a separate thread to save the model
             thread = Thread(target=helpers.save_model_to_file(
@@ -128,6 +127,6 @@ def run_training():
 
 
 if __name__ == "__main__":
-    th.set_num_threads(1)
+    torch.set_num_threads(1)
     run_training()
     print("Done.")
