@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-This script enables testing of previously trained LSTM models. NUM_PREDICTED_SENTENCES defines the epoch of the
-previously trained model to test. Depending on the config, a random index of the dataset is picked and for
+This script enables testing of previously trained LSTM models. Depending on the config, a random index of the dataset is picked and for
 config.teacher_forcing_steps fed to the LSTM. Afterwards, the model predicts the next characters
 cfg.testing.closed_loop_steps-times before the prediction as well as the ground truth get printed to the console.
-This is done NUM_PREDICTED_SENTENCES times before exiting. # TODO: finalize once everything else is done.
 """
+
 import argparse
 import os
 import torch
-from torch import autograd, nn
 import numpy as np
+from torch import autograd, nn
 
 from modules import Model
 from src.utils.configuration import Configuration
@@ -21,9 +20,8 @@ import src.utils.helper_functions as helpers
 def run_testing(arguments: argparse.Namespace) -> None:
     """
     Does multiple forward passes on the selected model with the specified teacher forcing from the configuration. The
-    real and the predicted sentences then get printed to the console.
-    Arguments:
-        arguments (argparse.Namespace): Specified information about the amount of tests, the chosen model and the corresponding config.
+    real and the predicted sentences then get printed to the console. Arguments: arguments (argparse.Namespace):
+    Specified information about the amount of tests, the chosen model and the corresponding config.
     """
     # Unpack args:
     num_predicted_sentences = arguments.num_sentences
