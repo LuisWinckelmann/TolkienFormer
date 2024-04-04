@@ -1,25 +1,30 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-TODO: Description
+This script trains a Transformer-like model based on the configuration provided
 """
 
+import argparse
 import os
 import time
+import numpy as np
+import torch
+import torch.nn as nn
 from threading import Thread
 
-import numpy as np
-import torch as th
-import torch.nn as nn
-
-import src.utils.helper_functions as helpers
 from modules import Model
 from src.utils.configuration import Configuration
+import src.utils.helper_functions as helpers
 
 
-def run_training():
+def run_training(arguments: argparse.Namespace) -> None:
+    """
+    Performs the training of the Transformer-like model with the settings specified in the configuration file
+    Arguments:
+        arguments (argparse.Namespace): Custom arguments for the training, specifically the config path + name
+    """
     # Load the user configurations
-    cfg = Configuration("config.json")
+    cfg = Configuration(os.path.join(arguments.cfg_path, arguments.cfg_name))
 
     # Print some information to console
     print("Model name:", cfg.model.name)
@@ -50,7 +55,7 @@ def run_training():
     print("Trainable model parameters:", pytorch_total_params)
 
     # Set up an optimizer and the criterion (loss)
-    optimizer = th.optim.Adam(model.parameters(), lr=cfg.training.learning_rate, betas=(0.9, 0.98), eps=1e-9)
+    optimizer = torch.optim.Adam(model.parameters(), lr=cfg.training.learning_rate, betas=(0.9, 0.98), eps=1e-9)
 
     # criterion = nn.NLLLoss(reduction="mean")
     criterion = nn.CrossEntropyLoss()
@@ -84,10 +89,10 @@ def run_training():
             optimizer.zero_grad()
 
             trg_mask = np.triu(np.ones((1, net_label.shape[0], net_label.shape[0])), k=1).astype('uint8')
-            trg_mask = th.from_numpy(trg_mask) == 0
+            trg_mask = torch.from_numpy(trg_mask) == 0
 
             # Calculate the error
-            y_hat = model(net_input, mask=trg_mask.cuda())
+            y_hat = model(net_input, mask=trg_mask.to(device=device))
             loss = criterion(y_hat.squeeze(1), net_label.squeeze(1).argmax(dim=1))
 
             # Compute the gradients
@@ -101,7 +106,7 @@ def run_training():
         epoch_errors_train.append(np.mean(sequence_errors))
 
         # Save the model to file (if desired)
-        if cfg.training.save_model and epoch % cfg.training.save_every_nth_epoch == 0:  # and np.mean(sequence_errors) < best_train:
+        if cfg.training.save_model and epoch % cfg.training.save_every_nth_epoch == 0:
             print(f'\nSaving model @ epoch {epoch + 1}')
             # Start a separate thread to save the model
             thread = Thread(target=helpers.save_model_to_file(
@@ -133,6 +138,10 @@ def run_training():
 
 
 if __name__ == "__main__":
-    th.set_num_threads(1)
-    run_training()
+    torch.set_num_threads(1)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--cfg_path", default=".")
+    parser.add_argument("--cfg_name", default="config.json")
+    args = parser.parse_args()
+    run_training(arguments=args)
     print("Done.")

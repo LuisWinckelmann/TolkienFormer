@@ -1,31 +1,38 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-TODO: Description
+This script enables testing of previously trained Transformer-like models. Depending on the config, a random index
+of the dataset is picked and for config.teacher_forcing_steps fed to the LSTM. Afterwards, the model predicts the
+next characters cfg.testing.closed_loop_steps-times before the prediction as well as the ground truth get printed to
+the console.
 """
 
+import argparse
 import os
-import numpy as np
-import torch as th
+import torch
 import torch.nn as nn
+import numpy as np
 
-import src.utils.helper_functions as helpers
 from modules import Model
 from src.utils.configuration import Configuration
-
-# TODO: Turn this into flags
-# Number of Predicted sentences
-NUM_PREDICTED_SENTENCES = 5
-# Epoch of the model to load
-LOADING_MODEL_EPOCH = 25
+import src.utils.helper_functions as helpers
 
 
-def run_testing():
+def run_testing(arguments: argparse.Namespace) -> None:
+    """
+    Does multiple forward passes on the selected model with the specified teacher forcing from the configuration. The
+    real and the predicted sentences then get printed to the console. Arguments: arguments (argparse.Namespace):
+    Specified information about the amount of tests, the chosen model and the corresponding config.
+    """
+    # Unpack args:
+    num_predicted_sentences = arguments.num_sentences
+    model_epoch = arguments.model_epoch
+
     # Load the user configurations
-    cfg = Configuration("config.json")
+    cfg = Configuration(os.path.join(arguments.cfg_path, arguments.cfg_name))
 
     # Print some information to console
-    print("Model name:", cfg.model.name + "_epoch_" + str(LOADING_MODEL_EPOCH))
+    print("Model name:", cfg.model.name + "_epoch_" + str(model_epoch))
 
     # Hide the GPU(s) in case the user specified to use the CPU in the config file
     if cfg.general.device == "CPU":
@@ -49,11 +56,11 @@ def run_testing():
 
     # Load the trained weights from the checkpoints into the model
     model.load_state_dict(
-        th.load(os.path.join(os.path.abspath(""),
-                             "checkpoints",
-                             cfg.model.name,
-                             cfg.model.name + "_epoch_" + str(LOADING_MODEL_EPOCH) + ".pt"),
-                map_location=device))
+        torch.load(os.path.join(os.path.abspath(""),
+                                "checkpoints",
+                                cfg.model.name,
+                                cfg.model.name + "_epoch_" + str(model_epoch) + ".pt"),
+                   map_location=device))
     model.eval()
 
     # Set up the dataloader for the testing
@@ -72,25 +79,25 @@ def run_testing():
         x = net_input[:tf_steps]
 
         trg_mask = np.triu(np.ones((1, x.shape[0], x.shape[0])), k=1).astype('uint8')
-        mask = (th.from_numpy(trg_mask) == 0).cuda()
+        mask = (torch.from_numpy(trg_mask) == 0).to(device)  # .cuda()
 
         # Generate predictions
         y_hat = model(x=x, mask=mask)
         y_hat = nn.functional.softmax(y_hat, dim=-1)
 
-        y_hat_last = th.tensor(np.array([[helpers.softmax_to_one_hot(soft=y_hat[-1, 0])]])).to(device=device)
-        x = th.cat((x, y_hat_last.float()), dim=0)
+        y_hat_last = torch.tensor(np.array([[helpers.softmax_to_one_hot(soft=y_hat[-1, 0])]])).to(device=device)
+        x = torch.cat((x, y_hat_last.float()), dim=0)
 
         for t in range(cl_steps):
             trg_mask = np.triu(np.ones((1, x.shape[0], x.shape[0])), k=1).astype('uint8')
-            mask = (th.from_numpy(trg_mask) == 0).cuda()
+            mask = (torch.from_numpy(trg_mask) == 0).to(device)  # .cuda()
 
             y_hat = model(x=x, mask=mask)
             y_hat = nn.functional.softmax(y_hat, dim=-1)
-            y_hat_last = th.tensor(np.array([[helpers.softmax_to_one_hot(soft=y_hat[-1, 0])]])).to(device=device)
+            y_hat_last = torch.tensor(np.array([[helpers.softmax_to_one_hot(soft=y_hat[-1, 0])]])).to(device=device)
 
             # Append the model output to the input and continue
-            x = th.cat((x, y_hat_last.float()), dim=0)
+            x = torch.cat((x, y_hat_last.float()), dim=0)
 
         net_input = net_input.detach().cpu().numpy()
         tolkien_text = []
@@ -109,17 +116,23 @@ def run_testing():
         model_text = "".join(model_text)
 
         print(f"Initialization: {tolkien_text[:tf_steps]}...")
-        print(f"\nTolkien:\n --- {tolkien_text}")
-        print(f"\nTransformer model:\n --- {model_text}")
+        print(f"\nTolkien: \n --- {tolkien_text}")
+        print(f"\nTransformer model: \n --- {model_text}")
         print()
 
-        if batch_idx > NUM_PREDICTED_SENTENCES:
+        if batch_idx > num_predicted_sentences:
             exit()
         print("\n\n")
 
 
 if __name__ == "__main__":
-    th.set_num_threads(1)
-    run_testing()
+    torch.set_num_threads(1)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--num_sentences", default=5, type=int)
+    parser.add_argument("--model_epoch", default=25, type=int)
+    parser.add_argument("--cfg_path", default=".")
+    parser.add_argument("--cfg_name", default="config.json")
+    args = parser.parse_args()
+    run_testing(arguments=args)
 
     print("Done.")
