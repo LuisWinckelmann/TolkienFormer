@@ -3,8 +3,7 @@
 """
 This script trains an LSTM based on the configuration provided by config.json
 """
-
-
+import argparse
 import os
 import time
 import numpy as np
@@ -17,12 +16,14 @@ from src.utils.configuration import Configuration
 import src.utils.helper_functions as helpers
 
 
-def run_training() -> None:
+def run_training(arguments: argparse.Namespace) -> None:
     """
     Performs the training of the LSTM with the settings specified in the configuration.json file
+    Arguments:
+        arguments (argparse.Namespace): Custom arguments for the training, specifically the config path + name
     """
     # Load the user configurations
-    cfg = Configuration("config.json")
+    cfg = Configuration(os.path.join(arguments.cfg_path, arguments.cfg_name))
 
     # Print some information to console
     print("Model name:", cfg.model.name)
@@ -128,5 +129,9 @@ def run_training() -> None:
 
 if __name__ == "__main__":
     torch.set_num_threads(1)
-    run_training()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--cfg_path", default=".")
+    parser.add_argument("--cfg_name", default="config.json")
+    args = parser.parse_args()
+    run_training(arguments=args)
     print("Done.")

@@ -23,7 +23,7 @@ def run_testing(arguments: argparse.Namespace) -> None:
     Does multiple forward passes on the selected model with the specified teacher forcing from the configuration. The
     real and the predicted sentences then get printed to the console.
     Arguments:
-        arguments (TBD): Specified information about the amount of tests, the chosen model and the corresponding config.
+        arguments (argparse.Namespace): Specified information about the amount of tests, the chosen model and the corresponding config.
     """
     # Unpack args:
     num_predicted_sentences = arguments.num_sentences
