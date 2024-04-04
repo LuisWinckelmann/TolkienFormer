@@ -88,14 +88,14 @@ TODO: Short showcase
   The parameters for the evaluation can be changed in the model `config.json`.
 
 ## Roadmap
+- [X] Confirm setup written in README works on a new machine
+- [X] Docstrings
+- [X] Setting Flags instead of hardcoded Parameters like NUM_PREDICTED_SENTENCES and LOADING_MODEL_EPOCH and DATA_PATH
+- [X] Use Typing
+- [ ] Move to logging from printing
 - [ ] Write description with a showcase
 - [ ] Publish some additional results
-- [X] Confirm setup written in README works on a new machine
-- [ ] Leftover code beautification & Bugfixes
-  - [ ] Get rid of code doubling my merging train & test
-  - [ ] Move to logging from printing
-  - [ ] Setting Flags instead of hardcoded Parameters like NUM_PREDICTED_SENTENCES and LOADING_MODEL_EPOCH and DATA_PATH
-  - [ ] Use Typing
+- [ ] Get rid of code doubling my merging LSTM & Transformer folders and specifically train.py & test.py 
 
 ## Results
 TODO Write summary of results and link to some report that i maybe also upload?!
