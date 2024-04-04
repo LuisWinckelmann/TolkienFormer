@@ -1,117 +1,168 @@
 # -*- coding: utf-8 -*-
 """
-TODO: Description
+Implementation of a Transformer-like architecture to predict the most probable next character based on previous
+given/produced text. The implementation includes MultiHeadAttention, Encoding and Decoding.
 """
 
-import torch as th
+from typing import Optional
+
+import torch
 import torch.nn as nn
-import torch.nn.functional as F
+from torch.nn.functional import softmax
 
 
 class FeedForward(nn.Module):
     """
     A specific feed forward module that consists of a ReLU layer followed by a dropout and a linear layer.
+    Attributes:
+        net (nn.Sequential): The sequential layers of the network
     """
 
-    def __init__(self, d_model, linear_layer_size, dropout=0.1, bias=True):
+    def __init__(self, d_model: int, linear_layer_size: int, dropout: float = 0.1, bias: bool = True) -> None:
         """
         Constructor method of the feed forward module.
-        :param linear_layer_size: The internal size of the feed forward module
-        :param dropout: Probability of dropping out certain neurons
-        :param bias: Whether to use bias neurons
+        Arguments:
+            d_model (int): The size of input and output dimensions.
+            linear_layer_size (int): The size of the hidden layer.
+            dropout (float): The dropout rate.
+            bias (bool): If True, adds a learnable bias to the output.
         """
         super().__init__()
-        self.layer1 = nn.Linear(d_model, linear_layer_size, bias=bias)
-        self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(dropout)
-        self.layer2 = nn.Linear(linear_layer_size, d_model, bias=bias)
+        self.net = nn.Sequential(
+            nn.Linear(d_model, linear_layer_size, bias=bias),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(linear_layer_size, d_model, bias=bias)
+        )
 
-    def forward(self, x):
+    def forward(self, x: torch.tensor) -> torch.tensor:
         """
         The forward pass function of the module.
-        :param x: The input to the module
-        :return: The module's output
+        Arguments:
+            x (torch.tensor): The input tensor.
+        Returns:
+            torch.tensor: The output of the network
         """
-        x = self.layer1(x)
-        x = self.relu(x)
-        x = self.dropout(x)
-        x = self.layer2(x)
-        return x
+        return self.net(x)
 
 
 class MultiHeadAttention(nn.Module):
     """
     The core component of the transformer realizing the attention mechanism.
+    Attributes:
+        d_model (int): The size of the key, value, query, and output vectors.
+        n_heads (int): The number of attention heads.
+        d_per_head (int): The dimension of each head, calculated as `d_model // n_heads`.
+        key (nn.Linear): Linear layer to transform input into key vector.
+        value (nn.Linear): Linear layer to transform input into value vector.
+        query (nn.Linear): Linear layer to transform input into query vector.
+        dropout (nn.Dropout): Dropout layer applied to the attention scores.
+        out (nn.Linear): Output linear layer that transforms the concatenated head outputs.
     """
 
-    def __init__(self, n_heads, d_model, dropout=0.1, bias=True):
+    def __init__(self, n_heads, d_model, dropout=0.1, bias=True) -> None:
         """
-        Constructor method of the attention module.
-        :param n_heads: The number of attention heads
-        :param d_model: The size of the K, V, Q and output vectors
-        :param dropout: Probability of dropping out certain neurons
-        :param bias: Whether to use bias neurons
+        Initializes the MultiHeadAttention module.
+        Arguments:
+            n_heads (int): The number of attention heads.
+            d_model (int): The total dimension of the key, value, and query vectors.
+            dropout (float): The dropout rate applied to attention scores.
+            bias (bool): Whether bias should be included in linear layers.
         """
         super().__init__()
-        self.d = d_model
-        self.h = n_heads
-        self.d_per_h = d_model // n_heads
-        self.k = nn.Linear(d_model, d_model, bias=bias)
-        self.v = nn.Linear(d_model, d_model, bias=bias)
-        self.q = nn.Linear(d_model, d_model, bias=bias)
+        self.d_model = d_model
+        self.n_heads = n_heads
+        self.d_per_head = d_model // n_heads
+        # Ensure the division is clean
+        assert self.d_model % self.n_heads == 0, "d_model must be divisible by n_heads"
+
+        self.key = nn.Linear(d_model, d_model, bias=bias)
+        self.value = nn.Linear(d_model, d_model, bias=bias)
+        self.query = nn.Linear(d_model, d_model, bias=bias)
         self.dropout = nn.Dropout(dropout)
         self.out = nn.Linear(d_model, d_model)
 
-    def forward(self, x, mask=None):
+    def forward(self, x: torch.tensor, mask: Optional[torch.tensor] = None) -> torch.tensor:
         """
-        Forward pass of the multi head attention module.
-        # TODO document
-        :return: The attention weighted output as linear combination of v
+        Forward pass for MultiHeadAttention.
+        Arguments:
+            x (torch.tensor): Input to the MultiHeadAttention Module
+            mask (torch.tensor optional): Potential Mask to declare whether to hide part of the input
+        Returns:
+            torch.tensor: The attention weighted output as linear combination of v
         """
         seq_len, batch_size, _ = x.shape
-        k = self.k(x).view(batch_size, seq_len, self.h, self.d_per_h).transpose(1, 2)
-        v = self.v(x).view(batch_size, seq_len, self.h, self.d_per_h).transpose(1, 2)
-        q = self.q(x).view(batch_size, seq_len, self.h, self.d_per_h).transpose(1, 2)
-        o, _ = self.attention(k, v, q, mask)
-        c = o.transpose(1, 2).contiguous().view(seq_len, batch_size, self.d)
-        out = self.out(c)
-        return out
+        # Transform and reshape input to (batch_size, n_heads, seq_len, d_per_head)
+        key = self.key(x).view(batch_size, seq_len, self.n_heads, self.d_per_head).transpose(1, 2)
+        value = self.value(x).view(batch_size, seq_len, self.n_heads, self.d_per_head).transpose(1, 2)
+        query = self.query(x).view(batch_size, seq_len, self.n_heads, self.d_per_head).transpose(1, 2)
 
-    def attention(self, k, v, q, mask=None):
+        # Compute attention (batch_size, n_heads, seq_len, d_per_head)
+        attn_out, _ = self.attention(key, value, query, mask)
+
+        # Concatenate heads and put through final linear layer
+        out = attn_out.transpose(1, 2).contiguous().view(seq_len, batch_size, self.d_model)
+        return self.out(out)
+
+    def attention(self, k: torch.tensor, v: torch.tensor, q: torch.tensor, mask: Optional[torch.tensor] = None) \
+            -> tuple[torch.tensor, torch.tensor]:
         """
         The attention mechanism computing a weighted linear combination of v
-        based on the similarity of the according k and v entries.
-        :param k: Key vector
-        :param v: Value vector
-        :param q: Query vector
-        :param mask: Mask to hide future entries
-        :return: Weighted linear combination v_hat and the attention weights
+        based on the similarity of the according k and v entries, aka. "Scaled Dot Product Attention".
+        Arguments:
+            k (torch.tensor): Key vector
+            v (torch.tensor): Value vector
+            q (torch.tensor): Query vector
+            mask (torch.tensor, optional): Mask to hide future entries
+        Returns:
+            torch.Tensor: The attention-weighted output tensor.
+            torch.Tensor: The attention weights tensor.
         """
-        s = th.matmul(q, k.transpose(-2, -1)) / self.d_per_h ** 0.5
+        scores = torch.matmul(q, k.transpose(-2, -1)) / self.d_per_head ** 0.5
         if mask is not None:
             mask = mask.unsqueeze(0)
-            s = s.masked_fill(mask == 0, -1e9)
+            scores = scores.masked_fill(mask == 0, -1e9)
 
-        s = F.softmax(s, dim=-1)
+        attn = softmax(scores, dim=-1)
         if self.dropout is not None:
-            s = self.dropout(s)
-        out = th.matmul(s, v)
-        return out, s
+            attn = self.dropout(attn)
+        output = torch.matmul(attn, v)
+        return output, attn
 
 
 class DecoderLayer(nn.Module):
     """
-    A decoder layer part (of a Transformer) which predicts next observations
-    based on the previous inputs.
+    Represents a single layer within the decoder part of a Transformer model.
+
+    This layer performs two sequences of multi-head self-attention and position-wise feedforward network operations,
+    each followed by normalization and dropout for regularization. The layer is designed to process sequences in the
+    context of the entire sequence and previous decoder layers' outputs, enabling effective sequence-to-sequence
+    transformations.
+
+    Attributes:
+        norm1 (nn.LayerNorm): First layer normalization applied before the first multi-head attention operation.
+        dropout1 (nn.Dropout): Dropout applied after the first multi-head attention operation.
+        norm2 (nn.LayerNorm): Second layer normalization applied before the second multi-head attention operation.
+        dropout2 (nn.Dropout): Dropout applied after the second multi-head attention operation.
+        norm3 (nn.LayerNorm): Third layer normalization applied before the feedforward network operation.
+        dropout3 (nn.Dropout): Dropout applied after the feedforward network operation.
+        att1 (MultiHeadAttention): First multi-head attention mechanism, focusing on self-attention within the input sequence.
+        att2 (MultiHeadAttention): Second multi-head attention mechanism, typically focusing on attention towards the encoder's output.
+        feedforward (FeedForward): A feedforward neural network applied after the second attention mechanism.
+        norm4 (nn.LayerNorm): Final layer normalization applied after the feedforward network operation.
     """
-    def __init__(self, n_heads, d_model, linear_layer_size, dropout=0.1, bias=True):
+
+    def __init__(self, n_heads: int, d_model: int, linear_layer_size: int, dropout: float = 0.1, bias: bool = True) \
+            -> None:
         """
-        Constructor method of the attention module.
-        :param n_heads: The number of attention heads
-        :param d_model: The size of the K, V, Q and output vectors
-        :param linear_layer_size: The internal size of the feed forward module
-        :param dropout: Probability of dropping out certain neurons
-        :param bias: Whether to use bias neurons
+        Initializes the DecoderLayer with specified parameters for multi-head attention and feedforward network.
+
+        Parameters:
+            n_heads (int): Number of attention heads in the multi-head attention mechanisms.
+            d_model (int): The dimensionality of the input and output vectors for this layer.
+            linear_layer_size (int): The size of the internal layer within the feedforward network.
+            dropout (float): The dropout rate applied after attention operations and feedforward network.
+            bias (bool): Whether to include bias terms in the linear transformations within the attention mechanisms and feedforward network.
         """
         super().__init__()
         self.norm1 = nn.LayerNorm(d_model)
@@ -129,55 +180,70 @@ class DecoderLayer(nn.Module):
         self.feedforward = FeedForward(d_model, linear_layer_size, dropout, bias)
         self.norm4 = nn.LayerNorm(d_model)
 
-    def forward(self, x, mask):
+    def forward(self, x: torch.tensor, mask: Optional[torch.tensor]) -> torch.tensor:
         """
-        The forward pass function of the module.
-        :param x: The input to the module
-        :param mask: Mask to hide future entries
-        :return: The module's output
+        Defines the forward pass of the DecoderLayer.
+
+        Parameters:
+            x (torch.Tensor): The input tensor to the decoder layer with shape [seq_len,bs,d_model].
+            mask (torch.Tensor, optional): An optional tensor used for masking the attention mechanism to
+        prevent it from attending to certain positions.
+
+        Returns:
+            torch.Tensor: The output tensor of the decoder layer with the same shape as the input tensor.
         """
-        y = self.norm1(x)
-        x = x + self.dropout1(self.att1.forward(y, mask))
-        y = self.norm2(x)
-        x = x + self.dropout2(self.att2.forward(y, mask))
-        y = self.norm3(x)
-        x = x + self.dropout3(self.feedforward.forward(y))
-        y = self.norm4(x)
-        return y
+        # First attention block
+        x1 = self.norm1(x)
+        x = x + self.dropout1(self.att1(x1, mask))
+
+        # Second attention block
+        x2 = self.norm2(x)
+        x = x + self.dropout2(self.att2(x2, mask))
+
+        # Feedforward block
+        x3 = self.norm3(x)
+        x = x + self.dropout3(self.feedforward(x3))
+
+        # Final normalization
+        x = self.norm4(x)
+        return x
 
 
 class Model(nn.Module):
     """
-    The actual model consisting of a selected number of sequential decoder layers.
+    The model consisting of a linear encoding layer, a decoder layer, and a linear output layer.
+    Attributes:
+        enc (nn.Linear): Encoding Layer
+        dec (DecoderLayer): Decoding Layer
+        out (nn.Linear): Output Layer
     """
-    def __init__(self, n_heads, d_model, linear_layer_size, d_one_hot, dropout=0.1, bias=True):
+
+    def __init__(self, n_heads: int, d_model: int, linear_layer_size: int, d_one_hot: int, dropout: float = 0.1,
+                 bias: bool = True) -> None:
         """
         Constructor method of the Model module.
-        :param n_heads: The number of attention heads
-        :param d_model: The size of the K, V, Q and output vectors
-        :param linear_layer_size: The internal size of the feed forward module
-        :param d_one_hot: The size of the input and output vector
-        :param dropout: Probability of dropping out certain neurons
-        :param bias: Whether to use bias neurons
+        Arguments:
+            n_heads (int): The number of attention heads.
+            d_model (int): The size of the K, V, Q and output vectors.
+            linear_layer_size (int): The size of the feedforward network within the decoder.
+            d_one_hot (int): The size of the input and output vector.
+            dropout (float): Dropout rate.
+            bias (bool): Whether to use bias in linear layers.
         """
-        # TODO: Cleanup
         super().__init__()
         self.enc = nn.Linear(d_one_hot, d_model, bias=bias)
-        # self.enc = nn.Embedding(d_one_hot, d_model)
-        # self.dec1 = DecoderLayer(n_heads, d_model, linear_layer_size, dropout, bias)
-        self.dec2 = DecoderLayer(n_heads, d_model, linear_layer_size, dropout, bias)
+        self.dec = DecoderLayer(n_heads, d_model, linear_layer_size, dropout, bias)
         self.out = nn.Linear(d_model, d_one_hot, bias=bias)
 
-    def forward(self, x, mask):
+    def forward(self, x: torch.tensor, mask: Optional[torch.tensor]) -> torch.tensor:
         """
-        The forward pass function of the module.
-        :param x: The input to the module
-        :param mask: Mask to hide future entries
-        :return: The module's output
+        Defines the computation performed at every call.
+        Arguments:
+            x (torch.tensor): The input to the module
+            mask (torch.tensor, optional): Mask to hide future entries
+        Returns:
+            torch.tensor: The module's output
         """
-        # x = self.enc(th.argmax(x, dim=-1))
         x = self.enc(x)
-        # x = self.dec1(x, mask)
-        x = self.dec2.forward(x, mask)
-        x = self.out(x)
-        return x
+        x = self.dec(x, mask)
+        return self.out(x)
