@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-This script trains an LSTM based on the configuration provided by config.json
+This script trains an LSTM based on the configuration provided
 """
+
 import argparse
 import os
 import time
@@ -18,7 +19,7 @@ import src.utils.helper_functions as helpers
 
 def run_training(arguments: argparse.Namespace) -> None:
     """
-    Performs the training of the LSTM with the settings specified in the configuration.json file
+    Performs the training of the LSTM with the settings specified in the configuration file
     Arguments:
         arguments (argparse.Namespace): Custom arguments for the training, specifically the config path + name
     """
@@ -95,8 +96,7 @@ def run_training(arguments: argparse.Namespace) -> None:
         epoch_errors.append(np.mean(sequence_errors))
 
         # Save the model to file (if desired)
-        if cfg.training.save_model and epoch % cfg.training.save_every_nth_epoch == 0:  # and np.mean(
-            # sequence_errors) < best_train:
+        if cfg.training.save_model and epoch % cfg.training.save_every_nth_epoch == 0:
             print('\nSaving model')
             # Start a separate thread to save the model
             thread = Thread(target=helpers.save_model_to_file(
