@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Implementation of an LSTM to predict the most probably next character based on the previous given/produced text
+Implementation of an LSTM to predict the most probable next character based on the previous given/produced text
 """
+
+from typing import Optional
 
 import torch
 from torch import nn, autograd
@@ -35,11 +37,12 @@ class Model(nn.Module):
                             dropout=dropout, batch_first=True)
         self.linear = nn.Linear(d_lstm, d_one_hot)
 
-    def forward(self, x: torch.tensor, state=None) -> tuple[torch.tensor, tuple[autograd.Variable, autograd.Variable]]:
+    def forward(self, x: torch.tensor, state: Optional[tuple[autograd.Variable, autograd.Variable]] = None) \
+            -> tuple[torch.tensor, tuple[[autograd.Variable, autograd.Variable]]]:
         """
         The forward pass function of the module.
         Arguments:
-            x: The input to the module
+            x (torch.tensor): The input to the module
             state: The previous model state, None if no previous state is passed to the model
         Returns:
              torch.tensor: The module's output
