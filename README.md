@@ -28,17 +28,27 @@
 
 
 <!-- ABOUT THE PROJECT -->
+# Disclaimer: WIP - Not finalized yet
 ## About The Project
-TolkienFormer is a project dedicated to the task of text generation. Specifically the goal was to produce text in the style of Tolkien's the Lord of the Rings, with different neural network architectures.
-The secondary goal was to gain more experience working with Transformers, LSTM's and PyTorch in general. 
-Text generation is considered a particular data and resource hungry task. 
-In order to reduce the complexity of the problem of text generation and to work with the limited computational capacity of my personal GPU the results are obtained with a rather small dataset (Chapter 1 of Tolkien's The Fellowship of the Ring).
+TolkienFormer is a project focused on text generation. 
+Specifically, its aim is to generate text reminiscent of J.R.R. Tolkien's *The Lord of the Rings* using various neural network architectures.
+A secondary objective is to enhance proficiency with Transformers, LSTMs, and PyTorch in a broader sense.<br>
+Text generation poses as a particularly demanding task in terms of data and computational resources.
+Given the relatively small size of both the models and datasets, the project employs the technique of [Teacher Forcing](https://en.wikipedia.org/wiki/Teacher_forcing).
+This method provides the model with the actual ground truth output from the previous step as input, rather than its own generated output, helping to stabilize and expedite training and testing.
+
+With appropriately tuned hyperparameters, the trained models demonstrate proficiency in generating texts such as the following:
 
 TODO:
-- Also mention teacher forcing steps
 - Include results for both models
 - Explain the results
-- Rephrase and fix grammar/spelling
+
+<!--
+Text generation is considered a particular data and resource hungry task. 
+In order to reduce the complexity of the problem of text generation and to work with the limited computational capacity of my personal GPU the results are obtained with a rather small dataset (Chapter 1 of Tolkien's The Fellowship of the Ring).
+To counteract the limited size of the models and the dataset, [Teacher Forcing](https://en.wikipedia.org/wiki/Teacher_forcing) was used to pretend that the model correctly predicted the first *n* characters.
+When the hyperparameters are tuned correctly, the trained models are able to produce the following texts:
+-->
 
 ## Setup 
   First, you have to clone the repo and create a conda environment, as well adding the project root to your PYTHONPATH to enable local imports:
