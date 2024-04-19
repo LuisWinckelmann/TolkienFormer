@@ -4,7 +4,7 @@
 
 <h1 align="center">TolkienFormer - Textgeneration with Tolkiens Touch</h1>
   <p align="center">
-    A project exploring LSTM and Transformer-like models with with implementations in Python & Pytorch.
+    A project exploring LSTM and Transformer-like models to generate text with implementations in Python & Pytorch.
   <br />
   <a href="#results"><strong>Example Results »</strong></a>
 </p>
@@ -29,10 +29,16 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-TolkienFormer is a project dedicated to get more familiar with Generative Neural Networks and Pytorch. The codebase contains 
+TolkienFormer is a project dedicated to the task of text generation. Specifically the goal was to produce text in the style of Tolkien's the Lord of the Rings, with different neural network architectures.
+The secondary goal was to gain more experience working with Transformers, LSTM's and PyTorch in general. 
+Text generation is considered a particular data and resource hungry task. 
+In order to reduce the complexity of the problem of text generation and to work with the limited computational capacity of my personal GPU the results are obtained with a rather small dataset (Chapter 1 of Tolkien's The Fellowship of the Ring).
 
-TODO: Write description <br>
-TODO: Short showcase
+TODO:
+- Also mention teacher forcing steps
+- Include results for both models
+- Explain the results
+- Rephrase and fix grammar/spelling
 
 ## Setup 
   First, you have to clone the repo and create a conda environment, as well adding the project root to your PYTHONPATH to enable local imports:
@@ -88,17 +94,16 @@ TODO: Short showcase
   The parameters for the evaluation can be changed in the model `config.json`.
 
 ## Roadmap
-- [X] Confirm setup written in README works on a new machine
-- [X] Docstrings
-- [X] Setting Flags instead of hardcoded Parameters like NUM_PREDICTED_SENTENCES and LOADING_MODEL_EPOCH and DATA_PATH
-- [X] Use Typing
 - [ ] Move to logging from printing
 - [ ] Write description with a showcase
 - [ ] Publish some additional results
+- [ ] Confirm setup and functionality works and README is clearly written
 - [ ] Get rid of code doubling my merging LSTM & Transformer folders and specifically train.py & test.py 
+- [ ] Easier setup via shell script(s)
 
 ## Results
 TODO Write summary of results and link to some report that i maybe also upload?!
+Add under and overfitted results for both models
 
 ## License
 Distributed under the MIT License. See `LICENSE.txt` for more information.
@@ -115,3 +120,11 @@ Project Link: [https://github.com/LuisWinckelmann/project_name](https://github.c
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/luiswinckelmann
 [PyTorch]: https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=for-the-badge&logo=PyTorch&logoColor=white
+<!--
+[underfitted-results-transformer]: gfx/underfitted_transformer.png
+[overfitted-results-transformer]: gfx/overfitted_transformer.png
+[underfitted-results-lstm]: gfx/underfitted_lstm.png
+[overfitted-results-lstm]: gfx/overfitted_lstm.png
+[fitted-results-transformer]: gfx/fitted_transformer.png
+[fitted-results-lstm]: gfx/fitted_lstm.png
+-->
