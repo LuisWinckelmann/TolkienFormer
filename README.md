@@ -119,7 +119,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 ## Contact
 [![LinkedIn][linkedin-shield]][linkedin-url] <br>
 Luis Winckelmann  - luis.winckelmann@gmx.com <br>
-Project Link: [https://github.com/LuisWinckelmann/project_name](https://github.com/LuisWinckelmann/JavaDeep-MLP-RNN-from-scratch-in-Java)
+Project Link: [https://github.com/LuisWinckelmann/TolkienFormer](https://github.com/LuisWinckelmann/TolkienFormer)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
