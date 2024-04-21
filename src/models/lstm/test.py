@@ -132,7 +132,7 @@ if __name__ == "__main__":
     torch.set_num_threads(1)
     parser = argparse.ArgumentParser()
     parser.add_argument("--num_sentences", default=5, type=int)
-    parser.add_argument("--model_epoch", default=25, type=int)
+    parser.add_argument("--model_epoch", default=125, type=int)
     parser.add_argument("--cfg_path", default=".")
     parser.add_argument("--cfg_name", default="config.json")
     args = parser.parse_args()
