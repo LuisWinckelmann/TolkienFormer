@@ -63,10 +63,11 @@ When the hyperparameters are tuned correctly, the trained models are able to pro
    conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
    # 3. Enable local imports by adding the root to your pythonpath:
    # 3a) Linux:
-   export PYTHONPATH=.:$PYTHONPATH
+   export PYTHONPATH=$PYTHONPATH:$PWD
    # 3b) Windows:
    set PYTHONPATH=%PYTHONPATH%;%cd%
    ```
+  Afterwards, you need prepare the data to be able to train the models. For the specifics, please follow the [Instructions](#data) below. 
 
 ## Data
   For the data you can use any *.txt file that you want. In the current setup the file will get parse row-wise.
@@ -101,8 +102,12 @@ When the hyperparameters are tuned correctly, the trained models are able to pro
   # Transformer-like model
   cd src/models/transformer
   python test.py 
+  # Optional Parameters to edit when running test.py: 
+  # --num_sentences 5 
+  # --model_epoch 150
   ```
-  The parameters for the evaluation can be changed in the model `config.json`.
+  To specify the amount of predicted sentences use the `--num_sentences` flag, to select one of the saved checkpoints, use the `--model_epoch` flag
+  Other parameters for the evaluation can be changed in the model `config.json`.
 
 ## Roadmap
 - [ ] Move to logging from printing
