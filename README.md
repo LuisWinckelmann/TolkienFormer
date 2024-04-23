@@ -91,7 +91,7 @@ When the hyperparameters are tuned correctly, the trained models are able to pro
   cd src/models/transformer
   python train.py 
   ```
-  All currently available hyperparameters can be changed in the corresponding config.json files located in `src/modes/lstm` or `src/modes/transformers` respectively. 
+  All currently available hyperparameters can be changed in the corresponding config.json files located in `src/models/lstm` or `src/models/transformers` respectively. 
 
 ## Testing
   After executing the training, to generate results of the models as shown in the <a href="#about-the-project">description</a>, you can run:
